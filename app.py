@@ -123,7 +123,7 @@ if __name__ == '__main__':
     server_thread.start()
     
     # Agregar un pequeño retardo antes de iniciar el temporizador de elección
-    time.sleep(3)
+    time.sleep(7)
     print("Timeout para la elección:", election_timeout)
     reset_election_timer()
 
