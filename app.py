@@ -135,6 +135,6 @@ if __name__ == '__main__':
     # Agregar un pequeño retardo antes de iniciar el temporizador de elección
     time.sleep(7)
     print("Timeout para la elección:", election_timeout)
-    get_private_ip()
+    print(get_private_ip())
     reset_election_timer()
 
