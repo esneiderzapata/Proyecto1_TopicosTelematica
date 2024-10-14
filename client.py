@@ -8,13 +8,13 @@ def client():
         if user_input.startswith("write "):
             message = user_input[len("write "):]  # Extract the message after "write "
             if message:
-                response = requests.post('http://proxy-server-url/write', json={'message': message})
+                response = requests.post('http://172.31.34.231/write', json={'message': message})
             else:
                 print("No message provided. Try again.")
                 continue
         
         elif user_input == 'read':
-            response = requests.get('http://proxy-server-url/read')
+            response = requests.get('http://172.31.34.231/read')
         
         else:
             print("Invalid input. Use 'write <message>' or 'read'.")

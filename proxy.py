@@ -4,7 +4,7 @@ import random
 
 app = Flask(__name__)
 
-NODES_IP = ["http://follower1-url", "http://follower2-url", "http://leader-server-url"]  # List of nodes
+NODES_IP = ["http://172.31.38.10", "http://172.31.36.31", "http://172.31.43.43"]  # List of nodes
 
 @app.route('/write', methods=['POST'])
 def handle_write():
