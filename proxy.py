@@ -1,24 +1,36 @@
 from flask import Flask, request, jsonify
 import requests
+import random
 
 app = Flask(__name__)
 
-LEADER_URL = "http://leader-server-url"
-FOLLOWER_URLS = ["http://follower1-url", "http://follower2-url"]  # List of followers
+NODES_IP = ["http://follower1-url", "http://follower2-url", "http://leader-server-url"]  # List of nodes
 
 @app.route('/write', methods=['POST'])
 def handle_write():
     data = request.json
+    leader_url = None
     # Forward the write request to the leader
-    #Leader url will be by a method for getting the leader ip
-    response = requests.post(f"{LEADER_URL}/write", json=data)
+    #Leader url will be by a method for getting the leader ip http://{ip_de_la_instancia}/current_state
+    for i in range(0,3,1):
+        temp = requests.get(f"{NODES_IP[i]}/current_state")
+        if temp["current_state"] == "leader":
+            leader_url = NODES_IP[i]
+            break
+    response = requests.post(f"{leader_url}/write", json=data)
     return response.text
 
 @app.route('/read', methods=['GET'])
 def handle_read():
     # Forward the read request to one of the followers (can be randomized)
-    # Same to this method the url will be given by a method in ap[p.py]
-    response = requests.get(f"{FOLLOWER_URLS[0]}/read")  # Could rotate between followers
+    follower  = []
+    petition = random.randint(0,1)    
+    for i in range(0,3,1):
+        temp = requests.get(f"{NODES_IP[i]}/current_state")
+        if temp["current_state"] == "follower":
+            follower.append(NODES_IP[i])
+
+    response = requests.get(f"{follower[petition]}/read")  # Could rotate between followers
     return response.text
 
 if __name__ == "__main__":
