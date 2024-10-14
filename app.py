@@ -19,7 +19,7 @@ votes_received = 0        # Votos recibidos en esta elección
 election_timeout = random.uniform(3, 5)  # Tiempo aleatorio antes de empezar una elección
 
 # Lista de nodos en el clúster (direcciones IP privadas)
-peers = ['http://172.31.38.10', 'http://172.31.36.31', 'http://172.31.43.43']
+peers = []
 
 # Temporizador para la elección
 election_timer = None
@@ -85,6 +85,16 @@ def send_heartbeats():
                 print(f"Error enviando heartbeat a {peer}: {e}")
         time.sleep(1)  # Enviar heartbeats cada segundo
 
+def load_peers(file_path):
+    peers = []
+    try:
+        with open(file_path, 'r') as f:
+            peers = [line.strip() for line in f.readlines()]
+    except Exception as e:
+        print(f"Error al leer el archivo de peers: {e}")
+    return peers
+
+
 # Endpoint para recibir solicitudes de voto
 @app.route('/request_vote', methods=['POST'])
 def handle_request_vote():
@@ -122,6 +132,8 @@ if __name__ == '__main__':
     server_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=80))
     server_thread.start()
     
+    peers = load_peers('peers.txt')
+    print(f"Peers cargados: {peers}")
     # Agregar un pequeño retardo antes de iniciar el temporizador de elección
     time.sleep(7)
     print("Timeout para la elección:", election_timeout)
