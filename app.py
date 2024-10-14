@@ -48,6 +48,7 @@ def start_election():
 
 # Función para solicitar un voto de otro nodo
 def request_vote(peer):
+    print("Solicitando voto a: ", peer)
     global current_term
     try:
         response = requests.post(f"{peer}/request_vote", json={"term": current_term})
@@ -76,6 +77,7 @@ def send_heartbeats():
         for peer in peers:
             try:
                 requests.post(f"{peer}/heartbeat", json={"term": current_term})
+                print("Latido enviado a", peer)
             except Exception as e:
                 print(f"Error enviando heartbeat a {peer}: {e}")
         time.sleep(1)  # Enviar heartbeats cada segundo
