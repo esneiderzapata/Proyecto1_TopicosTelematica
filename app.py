@@ -3,6 +3,8 @@ import requests
 import threading
 import random
 import time
+import os
+import json
 
 app = Flask(__name__)
 
@@ -17,12 +19,17 @@ voted_for = None          # A quién votó este nodo en este término
 state = STATE_FOLLOWER    # Estado inicial
 votes_received = 0        # Votos recibidos en esta elección
 election_timeout = random.uniform(3, 5)  # Tiempo aleatorio antes de empezar una elección
+current_leader_ip = ''
 
 # Lista de nodos en el clúster (direcciones IP privadas)
 peers = []
 
 # Temporizador para la elección
 election_timer = None
+
+#Log persistente de cada instancia
+log_file = 'log.json'
+log = []
 
 # Función para reiniciar el temporizador de elección
 def reset_election_timer():
@@ -85,6 +92,7 @@ def send_heartbeats():
                 print(f"Error enviando heartbeat a {peer}: {e}")
         time.sleep(1)  # Enviar heartbeats cada segundo
 
+# Funcion para cargar los peers del archivo persistente
 def load_peers(file_path):
     peers = []
     try:
@@ -94,6 +102,56 @@ def load_peers(file_path):
         print(f"Error al leer el archivo de peers: {e}")
     return peers
 
+# Función para cargar el log desde el archivo persistente
+def load_log():
+    if os.path.exists(log_file):
+        with open(log_file, 'r') as f:
+            return json.load(f)
+    else:
+        return []
+    
+# Función para guardar el log en el archivo persistente
+def save_log(log):
+    with open(log_file, 'w') as f:
+        json.dump(log, f, indent=4)
+
+# Función para agregar entradas al log
+def append_to_log(entry):
+    log.append(entry)
+    save_log(log)  # Guardar el log actualizado en el archivo
+
+# Función para replicar el log en los followers
+def replicate_to_followers(entry):
+    for peer in peers:
+        try:
+            requests.post(f"{peer}/append_entries", json=entry)
+            print(f"Entrada replicada en {peer}")
+        except Exception as e:
+            print(f"Error replicando entrada en {peer}: {e}")
+
+# Función para sincronizar el log faltante
+def sync_log_with_leader():
+    if state == STATE_FOLLOWER:
+        try:
+            response = requests.get(f"http://{current_leader_ip}/get_log")
+            leader_log = response.json()
+            
+            # Comparar y añadir entradas faltantes
+            missing_entries = [entry for entry in leader_log if entry['index'] > len(log)]
+            log.extend(missing_entries)
+            
+            save_log(log)  # Guardar el log sincronizado en el archivo persistente
+            
+            if missing_entries :
+                print("Log sincronizado con el líder")
+            else:
+                print("No había nada que sincronizar")
+        except Exception as e:
+            print(f"Error al sincronizar log con el líder: {e}")
+
+def on_reconnection():
+    if state == STATE_FOLLOWER and current_leader_ip != '':
+        sync_log_with_leader()
 
 # Endpoint para recibir solicitudes de voto
 @app.route('/request_vote', methods=['POST'])
@@ -116,26 +174,72 @@ def handle_request_vote():
 # Endpoint para recibir heartbeats
 @app.route('/heartbeat', methods=['POST'])
 def handle_heartbeat():
-    global state, current_term
+    global state, current_term, current_leader_ip
     data = request.json
     term = data['term']
-
+    
     if term >= current_term:
         current_term = term
         state = STATE_FOLLOWER  # Si recibe un heartbeat, sigue como follower
+        current_leader_ip = request.remote_addr  # Guardar la IP del líder
+        print(f"IP del lider actual: {current_leader_ip}")
         reset_election_timer()  # Reiniciar el temporizador para evitar convertirse en candidato
 
     return jsonify({"status": "ok"})
+
+# Endpoint para recibir operaciones de escritura
+@app.route('/write', methods=['POST'])
+def handle_write():
+    global state
+
+    if state != STATE_LEADER:
+        return jsonify({"error": "No soy el líder"}), 403
+
+    data = request.json
+    message = data.get('message')
+
+    # Crear nueva entrada de log
+    new_entry = {"index": len(log) + 1, "operation": "write", "message": message}
+    append_to_log(new_entry)  # Guardar en el archivo log.json
+
+    # Replicar la nueva entrada en los followers
+    replicate_to_followers(new_entry)
+
+    return jsonify({"status": "ok", "entry": new_entry})
+
+# Endpoint en los followers para recibir entradas de log replicadas
+@app.route('/append_entries', methods=['POST'])
+def handle_append_entries():
+    entry = request.json
+    log.append(entry)  # Agregar la nueva entrada al log en memoria
+    save_log(log)  # Guardar el log actualizado en el archivo persistente
+
+    return jsonify({"status": "ok"})
+
+# Endpoint en el líder para devolver su log completo
+@app.route('/get_log', methods=['GET'])
+def get_log():
+    log = load_log()  # Asegurarse de leer siempre el archivo más actualizado
+    return jsonify(log)
 
 if __name__ == '__main__':
     # Iniciar el servidor Flask en un hilo separado
     server_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=80))
     server_thread.start()
-    
-    peers = load_peers('peers.txt')
-    print(f"Peers cargados: {peers}")
+
     # Agregar un pequeño retardo antes de iniciar el temporizador de elección
     time.sleep(7)
+
+    #Cargar los peers
+    peers = load_peers('peers.txt')
+    print(f"Peers cargados: {peers}")
+
+    #Cargar el log
+    log = load_log()
+
+    #Intentar obtener el log actualizado
+    on_reconnection()
+
     print("Timeout para la elección:", election_timeout)
     reset_election_timer()
 
