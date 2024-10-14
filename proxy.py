@@ -14,7 +14,7 @@ def handle_write():
     #Leader url will be by a method for getting the leader ip http://{ip_de_la_instancia}/current_state
     for i in range(0,3,1):
         temp = requests.get(f"{NODES_IP[i]}/current_state")
-        if temp["current_state"] == "leader":
+        if temp.json().get("current_state") == "leader":
             leader_url = NODES_IP[i]
             break
     response = requests.post(f"{leader_url}/write", json=data)
@@ -27,7 +27,7 @@ def handle_read():
     petition = random.randint(0,1)    
     for i in range(0,3,1):
         temp = requests.get(f"{NODES_IP[i]}/current_state")
-        if temp["current_state"] == "follower":
+        if temp.json().get("current_state") == "follower":
             follower.append(NODES_IP[i])
 
     response = requests.get(f"{follower[petition]}/read")  # Could rotate between followers
