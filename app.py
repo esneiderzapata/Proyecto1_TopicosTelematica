@@ -85,6 +85,17 @@ def send_heartbeats():
                 print(f"Error enviando heartbeat a {peer}: {e}")
         time.sleep(1)  # Enviar heartbeats cada segundo
 
+def get_private_ip():
+    try:
+        response = requests.get('http://169.254.169.254/latest/meta-data/local-ipv4')
+        private_ip = response.text
+        print("Ip privada: ", private_ip)
+        return private_ip
+    except Exception as e:
+        print(f"Error al obtener la IP privada: {e}")
+        return None
+
+
 # Endpoint para recibir solicitudes de voto
 @app.route('/request_vote', methods=['POST'])
 def handle_request_vote():
@@ -125,5 +136,6 @@ if __name__ == '__main__':
     # Agregar un pequeño retardo antes de iniciar el temporizador de elección
     time.sleep(7)
     print("Timeout para la elección:", election_timeout)
+    get_private_ip()
     reset_election_timer()
 
