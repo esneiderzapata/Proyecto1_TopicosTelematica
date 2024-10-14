@@ -222,6 +222,11 @@ def get_log():
     log = load_log()  # Asegurarse de leer siempre el archivo más actualizado
     return jsonify(log)
 
+# Endpoint para obtener el estado actual del nodo
+@app.route('/current_state', methods=['GET'])
+def get_current_state():
+    return jsonify({"current_state": state})
+
 if __name__ == '__main__':
     # Iniciar el servidor Flask en un hilo separado
     server_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=80))
