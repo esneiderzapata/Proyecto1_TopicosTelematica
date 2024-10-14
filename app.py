@@ -120,5 +120,6 @@ def handle_heartbeat():
 if __name__ == '__main__':
     print("Timeout para la elección:", election_timeout)
     # Iniciar como follower y activar el temporizador de elección
-    reset_election_timer()
     app.run(host='0.0.0.0', port=80)
+    time.sleep(10)
+    reset_election_timer()
