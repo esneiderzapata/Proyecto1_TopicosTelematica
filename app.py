@@ -118,8 +118,8 @@ def handle_heartbeat():
     return jsonify({"status": "ok"})
 
 if __name__ == '__main__':
-    print("Timeout para la elección:", election_timeout)
     # Iniciar como follower y activar el temporizador de elección
     app.run(host='0.0.0.0', port=80)
-    time.sleep(10)
+    time.sleep(3)
+    print("Timeout para la elección:", election_timeout)
     reset_election_timer()
