@@ -89,11 +89,10 @@ def get_private_ip():
     try:
         response = requests.get('http://169.254.169.254/latest/meta-data/local-ipv4')
         private_ip = response.text
-        print("Ip privada: ", private_ip)
         return private_ip
     except Exception as e:
         print(f"Error al obtener la IP privada: {e}")
-        return None
+        return "No se ha recibido la IP"
 
 
 # Endpoint para recibir solicitudes de voto
