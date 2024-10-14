@@ -118,8 +118,12 @@ def handle_heartbeat():
     return jsonify({"status": "ok"})
 
 if __name__ == '__main__':
-    # Iniciar como follower y activar el temporizador de elección
-    app.run(host='0.0.0.0', port=80)
+    # Iniciar el servidor Flask en un hilo separado
+    server_thread = threading.Thread(target=lambda: app.run(host='0.0.0.0', port=80))
+    server_thread.start()
+    
+    # Agregar un pequeño retardo antes de iniciar el temporizador de elección
     time.sleep(3)
     print("Timeout para la elección:", election_timeout)
     reset_election_timer()
+
