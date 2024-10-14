@@ -55,10 +55,13 @@ def request_vote(peer):
         if response.status_code == 200:
             result = response.json()
             if result['vote_granted']:
+                print(f"Voto de {peer} recibido")
                 global votes_received
                 votes_received += 1
                 if votes_received > len(peers) // 2 and state == STATE_CANDIDATE:
                     become_leader()
+            else:
+                print(f"Voto de {peer} denegado")
     except Exception as e:
         print(f"Error solicitando voto de {peer}: {e}")
 
