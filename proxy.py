@@ -23,7 +23,7 @@ def handle_write():
     
     if leader_url:
         response = requests.post(f"{leader_url}/write", json=data)
-        return response.text
+        return jsonify({"ip": leader_url,"status": response.json().get("status"),"message": response.json().get("new_entry")})
     else:
         return jsonify({"error": "No leader found"}), 500
 
@@ -43,7 +43,7 @@ def handle_read():
     
     if followers:
         response = requests.get(f"{followers[petition]}/read")  # Could rotate between followers
-        return response.text
+        return  jsonify({"ip": followers[petition], "database": response.text})
     else:
         return jsonify({"error": "No followers available"}), 500
 
