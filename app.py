@@ -161,7 +161,7 @@ def sync_log_with_leader():
             for entry in missing_entries:
                 print(i)
                 i += 1
-                apply_log_entry(entry)
+                update_database(entry)
             print("PASO 3")
             save_log(log)  # Guardar el log actualizado en el archivo persistente
             
@@ -171,19 +171,6 @@ def sync_log_with_leader():
                 print("No había nada que sincronizar")
         except Exception as e:
             print(f"Error al sincronizar log con el líder: {e}")
-
-# Función para aplicar una entrada del log a la base de datos
-def apply_log_entry(entry):
-    print("recibiendo entrada")
-    print(entry)
-    if entry['index'] > database['index']:  # Solo aplicar si es una operación nueva
-        print("caballo")
-        database['index'] = entry['index']
-        print("gallina")
-        database['message'] = entry['message']
-        print("churrasco")
-        save_database(database)
-        print(f"Operación del log aplicada a la base de datos: {entry}")
 
 def on_reconnection():
     if state == STATE_FOLLOWER and current_leader_ip != '':
