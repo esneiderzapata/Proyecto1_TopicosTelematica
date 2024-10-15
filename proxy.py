@@ -23,7 +23,10 @@ def handle_write():
     
     if leader_url:
         response = requests.post(f"{leader_url}/write", json=data)
-        return jsonify({"ip": leader_url,"status": response.json().get("status"),"message": response.json().get("new_entry")})
+        return jsonify({
+            "response": response.json(),
+            "leader_ip": leader_url
+        })
     else:
         return jsonify({"error": "No leader found"}), 500
 
@@ -42,10 +45,15 @@ def handle_read():
             print(f"Error al verificar estado en {ip}: {e}")
     
     if followers:
-        response = requests.get(f"{followers[petition]}/read")  # Could rotate between followers
-        return  jsonify({"ip": followers[petition], "database": response.text})
+        follower_ip = followers[petition]
+        response = requests.get(f"{follower_ip}/read")  # Could rotate between followers
+        return jsonify({
+            "response": response.json(),
+            "follower_ip": follower_ip
+        })
     else:
         return jsonify({"error": "No followers available"}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80)
+
