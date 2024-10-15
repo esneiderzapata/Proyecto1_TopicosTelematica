@@ -9,24 +9,38 @@ y la elecci ́on de l ́ıder en sistemas distribuidos, incluyendo Raft y Paxos.
 https://www.techtarget.com/whatis/definition/consensus-algorithm
 
 https://www.geeksforgeeks.org/consensus-algorithms-in-distributed-system/
+
 https://aws.amazon.com/es/builders-library/leader-election-in-distributed-systems/
+
 https://www.geeksforgeeks.org/leader-election-vs-consensus-algorithm/
+
 https://www.baeldung.com/cs/consensus-algorithms-distributed-systems
+
 https://www.enjoyalgorithms.com/blog/leader-election-system-design
 
 ### Raft:
+
 https://raft.github.io
+
 https://thesecretlivesofdata.com/raft/
+
 https://raft.github.io/raft.pdf
+
 https://en.wikipedia.org/wiki/Raft_(algorithm)
+
 https://www.geeksforgeeks.org/raft-consensus-algorithm/
 
 ### Paxos:
 
+
 https://lamport.azurewebsites.net/pubs/paxos-simple.pdf
+
 https://en.wikipedia.org/wiki/Paxos_(computer_science)
+
 https://www.geeksforgeeks.org/paxos-consensus-algorithm/
+
 https://www.geeksforgeeks.org/paxos-algorithm-in-distributed-system/
+
 https://www.cs.yale.edu/homes/aspnes/pinewiki/Paxos.html
 
 ## Especificaciones de comunicaci ́on: 
