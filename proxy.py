@@ -11,27 +11,41 @@ def handle_write():
     data = request.json
     leader_url = None
     # Forward the write request to the leader
-    #Leader url will be by a method for getting the leader ip http://{ip_de_la_instancia}/current_state
-    for i in range(0,3,1):
-        temp = requests.get(f"{NODES_IP[i]}/current_state")
-        if temp.json().get("current_state") == "leader":
-            leader_url = NODES_IP[i]
-            break
-    response = requests.post(f"{leader_url}/write", json=data)
-    return response.text
+    for ip in NODES_IP:
+        try:
+            temp = requests.get(f"{ip}/current_state")
+            
+            if temp.json().get("current_state") == "leader":
+                leader_url = ip
+                break
+        except Exception as e:
+            print(f"Error al verificar estado en {ip}: {e}")
+    
+    if leader_url:
+        response = requests.post(f"{leader_url}/write", json=data)
+        return response.text
+    else:
+        return jsonify({"error": "No leader found"}), 500
 
 @app.route('/read', methods=['GET'])
 def handle_read():
     # Forward the read request to one of the followers (can be randomized)
-    follower  = []
-    petition = random.randint(0,1)    
-    for i in range(0,3,1):
-        temp = requests.get(f"{NODES_IP[i]}/current_state")
-        if temp.json().get("current_state") == "follower":
-            follower.append(NODES_IP[i])
-
-    response = requests.get(f"{follower[petition]}/read")  # Could rotate between followers
-    return response.text
+    followers = []
+    petition = random.randint(0, 1)
+    
+    for ip in NODES_IP:
+        try:
+            temp = requests.get(f"{ip}/current_state")
+            if temp.json().get("current_state") == "follower":
+                followers.append(ip)
+        except Exception as e:
+            print(f"Error al verificar estado en {ip}: {e}")
+    
+    if followers:
+        response = requests.get(f"{followers[petition]}/read")  # Could rotate between followers
+        return response.text
+    else:
+        return jsonify({"error": "No followers available"}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80)
