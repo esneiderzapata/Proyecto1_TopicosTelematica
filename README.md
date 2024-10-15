@@ -6,7 +6,7 @@ y la elecci ́on de l ́ıder en sistemas distribuidos, incluyendo Raft y Paxos.
 
 ### Algoritmos de consenso y eleccion de lider:
 
-https://www.techtarget.com/whatis/definition/consensus-algorithm \n
+https://www.techtarget.com/whatis/definition/consensus-algorithm /n
 https://www.geeksforgeeks.org/consensus-algorithms-in-distributed-system/
 https://aws.amazon.com/es/builders-library/leader-election-in-distributed-systems/
 https://www.geeksforgeeks.org/leader-election-vs-consensus-algorithm/
