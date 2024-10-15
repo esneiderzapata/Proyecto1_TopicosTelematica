@@ -93,7 +93,7 @@ def send_heartbeats():
                 requests.post(f"{peer}/heartbeat", json={"term": current_term})
                 print("Latido enviado a", peer)
             except Exception as e:
-                print(f"Error enviando heartbeat a {peer}: {e}")
+                print(f"Error enviando heartbeat a {peer}, posiblemente caído")
         time.sleep(1)  # Enviar heartbeats cada segundo
 
 # Funcion para cargar los peers del archivo persistente
@@ -151,18 +151,15 @@ def sync_log_with_leader():
         try:
             response = requests.get(f"http://{current_leader_ip}/get_log")
             leader_log = response.json()
-            print("PASO 1")
             # Procesar entradas faltantes
             missing_entries = [entry for entry in leader_log if entry['index'] > len(log)]
             log.extend(missing_entries)  # Sincronizar el log
-            print("PASO 2")
             # Ejecutar operaciones faltantes
             i = 0
             for entry in missing_entries:
                 print(i)
                 i += 1
                 update_database(entry)
-            print("PASO 3")
             save_log(log)  # Guardar el log actualizado en el archivo persistente
             
             if missing_entries:
@@ -223,7 +220,6 @@ def handle_heartbeat():
         current_term = term
         state = STATE_FOLLOWER  # Si recibe un heartbeat, sigue como follower
         current_leader_ip = request.remote_addr  # Guardar la IP del líder
-        print(f"IP del lider actual: {current_leader_ip}")
         reset_election_timer()  # Reiniciar el temporizador para evitar convertirse en candidato
 
     return jsonify({"status": "ok"})
@@ -247,6 +243,13 @@ def handle_write():
     replicate_to_followers(new_entry)
 
     return jsonify({"status": "ok", "entry": new_entry})
+
+# Endpoint para leer la base de datos completa
+@app.route('/read', methods=['GET'])
+def handle_read():
+    database = load_database()  # Cargar la base de datos desde el archivo persistente
+    return jsonify(database)    # Devolver la base de datos como JSON
+
 
 # Endpoint en los followers para recibir entradas de log replicadas
 @app.route('/append_entries', methods=['POST'])
@@ -289,10 +292,12 @@ if __name__ == '__main__':
     print(f"Peers cargados: {peers}")
 
     #Cargar el log y la database
+    print("Cargando log y base de datos...")
     log = load_log()
     database = load_database()
 
     #Intentar obtener el log actualizado
+    print("Actualizando log y ejecutando acciones...")
     on_reconnection()
 
     print("Timeout para la elección:", election_timeout)
