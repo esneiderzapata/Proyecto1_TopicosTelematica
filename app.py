@@ -151,15 +151,15 @@ def sync_log_with_leader():
         try:
             response = requests.get(f"http://{current_leader_ip}/get_log")
             leader_log = response.json()
-            
+            print("PASO 1")
             # Procesar entradas faltantes
             missing_entries = [entry for entry in leader_log if entry['index'] > len(log)]
             log.extend(missing_entries)  # Sincronizar el log
-
+            print("PASO 2")
             # Ejecutar operaciones faltantes
             for entry in missing_entries:
                 apply_log_entry(entry)
-            
+            print("PASO 3")
             save_log(log)  # Guardar el log actualizado en el archivo persistente
             
             if missing_entries:
