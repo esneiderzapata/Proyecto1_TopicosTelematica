@@ -67,3 +67,5 @@ la funcionalidad del sistema ante la falla del l ́ıder y la correcta elecci ́
 nuevo l ́ıder. El informe debe incluir la simulaci ́on de fallos y c ́omo el sistema
 se comporta en estas situaciones.
 
+Video de evidencia de las pruebas realizadas: https://youtu.be/DK1f0jX8xow
+
