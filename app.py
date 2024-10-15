@@ -152,18 +152,31 @@ def sync_log_with_leader():
             response = requests.get(f"http://{current_leader_ip}/get_log")
             leader_log = response.json()
             
-            # Comparar y añadir entradas faltantes
+            # Procesar entradas faltantes
             missing_entries = [entry for entry in leader_log if entry['index'] > len(log)]
-            log.extend(missing_entries)
+            log.extend(missing_entries)  # Sincronizar el log
+
+            # Ejecutar operaciones faltantes
+            for entry in missing_entries:
+                apply_log_entry(entry)
             
-            save_log(log)  # Guardar el log sincronizado en el archivo persistente
+            save_log(log)  # Guardar el log actualizado en el archivo persistente
             
-            if missing_entries :
-                print("Log sincronizado con el líder")
+            if missing_entries:
+                print("Log sincronizado con el líder y operaciones aplicadas")
             else:
                 print("No había nada que sincronizar")
         except Exception as e:
             print(f"Error al sincronizar log con el líder: {e}")
+
+# Función para aplicar una entrada del log a la base de datos
+def apply_log_entry(entry):
+    database = load_database()
+    if entry['index'] > database['index']:  # Solo aplicar si es una operación nueva
+        database['index'] = entry['index']
+        database['message'] = entry['message']
+        save_database(database)
+        print(f"Operación del log aplicada a la base de datos: {entry}")
 
 def on_reconnection():
     if state == STATE_FOLLOWER and current_leader_ip != '':
