@@ -157,7 +157,10 @@ def sync_log_with_leader():
             log.extend(missing_entries)  # Sincronizar el log
             print("PASO 2")
             # Ejecutar operaciones faltantes
+            i = 0
             for entry in missing_entries:
+                print(i)
+                i += 1
                 apply_log_entry(entry)
             print("PASO 3")
             save_log(log)  # Guardar el log actualizado en el archivo persistente
@@ -171,10 +174,14 @@ def sync_log_with_leader():
 
 # Función para aplicar una entrada del log a la base de datos
 def apply_log_entry(entry):
-    database = load_database()
+    print("recibiendo entrada")
+    print(entry)
     if entry['index'] > database['index']:  # Solo aplicar si es una operación nueva
+        print("caballo")
         database['index'] = entry['index']
+        print("gallina")
         database['message'] = entry['message']
+        print("churrasco")
         save_database(database)
         print(f"Operación del log aplicada a la base de datos: {entry}")
 
