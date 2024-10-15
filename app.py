@@ -31,6 +31,10 @@ election_timer = None
 log_file = 'log.json'
 log = []
 
+# Archivo de base de datos persistente
+database_file = 'database.json'
+database = {}
+
 # Función para reiniciar el temporizador de elección
 def reset_election_timer():
     global election_timer
@@ -120,14 +124,26 @@ def append_to_log(entry):
     log.append(entry)
     save_log(log)  # Guardar el log actualizado en el archivo
 
-# Función para replicar el log en los followers
+# Función para replicar el log en los followers y actualizar la base de datos
 def replicate_to_followers(entry):
+    success_count = 1  # El líder ya tiene la entrada replicada
     for peer in peers:
         try:
-            requests.post(f"{peer}/append_entries", json=entry)
-            print(f"Entrada replicada en {peer}")
+            response = requests.post(f"{peer}/append_entries", json=entry)
+            if response.status_code == 200:
+                success_count += 1
+                print(f"Entrada replicada en {peer}")
         except Exception as e:
             print(f"Error replicando entrada en {peer}: {e}")
+
+    if success_count > len(peers) // 2:
+        print("Replicación exitosa en la mayoría de los nodos. Actualizando database.json")
+        update_database(entry)
+        for peer in peers:
+            try:
+                response = requests.post(f"{peer}/update_database", json=entry)
+            except Exception as e:
+                print(f"Error replicando entrada en {peer}: {e}")
 
 # Función para sincronizar el log faltante
 def sync_log_with_leader():
@@ -152,6 +168,24 @@ def sync_log_with_leader():
 def on_reconnection():
     if state == STATE_FOLLOWER and current_leader_ip != '':
         sync_log_with_leader()
+
+# Función para cargar la base de datos desde el archivo persistente
+def load_database():
+    if os.path.exists(database_file):
+        with open(database_file, 'r') as f:
+            return json.load(f)
+    else:
+        return {}
+
+# Función para guardar la base de datos en el archivo persistente
+def save_database():
+    with open(database_file, 'w') as f:
+        json.dump(database, f, indent=4)
+
+# Función para agregar una entrada en la base de datos
+def update_database(entry):
+    database[entry['index']] = entry['message']
+    save_database()
 
 # Endpoint para recibir solicitudes de voto
 @app.route('/request_vote', methods=['POST'])
@@ -216,6 +250,14 @@ def handle_append_entries():
 
     return jsonify({"status": "ok"})
 
+# Endpoint en los followers para recibir confirmación de cambiar la base de datos
+@app.route('/update_database', methods=['POST'])
+def handle_append_entries():
+    entry = request.json
+    update_database(entry)
+
+    return jsonify({"status": "ok"})
+
 # Endpoint en el líder para devolver su log completo
 @app.route('/get_log', methods=['GET'])
 def get_log():
@@ -239,8 +281,9 @@ if __name__ == '__main__':
     peers = load_peers('peers.txt')
     print(f"Peers cargados: {peers}")
 
-    #Cargar el log
+    #Cargar el log y la database
     log = load_log()
+    database = load_database()
 
     #Intentar obtener el log actualizado
     on_reconnection()
