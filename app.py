@@ -252,7 +252,7 @@ def handle_append_entries():
 
 # Endpoint en los followers para recibir confirmación de cambiar la base de datos
 @app.route('/update_database', methods=['POST'])
-def handle_append_entries():
+def handle_update_database():
     entry = request.json
     update_database(entry)
 
