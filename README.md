@@ -1,5 +1,9 @@
 # Proyecto1_TopicosTelematica
 
+## Integrantes
+- Esneider Zapata Arias
+- Miguel Angel Escudero
+
 ## Marco Teórico: Algoritmos de Consenso y Elección de Líder en Sistemas Distribuidos
 Los algoritmos de consenso en sistemas distribuidos permiten que un grupo de nodos independientes acuerden un valor común o estado, garantizando consistencia a pesar de posibles fallos en los nodos o la red. Son esenciales en sistemas como bases de datos distribuidas, redes de blockchain y almacenamiento distribuido. Por otro lado, la elección de líder es una variante dentro de los algoritmos de consenso, donde un nodo es seleccionado como líder, responsable de coordinar y dirigir las acciones del sistema. El líder actúa como un punto de referencia centralizado para garantizar el consenso y evitar la fragmentación o conflicto entre los nodos.
 
@@ -25,12 +29,12 @@ Paxos es uno de los algoritmos de consenso más antiguos y teóricamente complet
 Si bien Paxos ofrece garantías fuertes de seguridad y tolerancia a fallos, es conocido por ser difícil de implementar correctamente debido a su complejidad y falta de claridad en algunos detalles . Variantes como Multi-Paxos introducen la figura de un líder para mejorar la eficiencia, similar a Raft, pero su implementación sigue siendo más complicada .
 
 ### Aplicación en el Proyecto: Base de Datos Simulada con Elección de Líder
-En este proyecto de un sistema de base de datos simulado, se implementará un esquema de consenso utilizando la elección de líder basado en el algoritmo Raft o Paxos. El sistema constará de tres procesos: un líder y dos seguidores, donde el líder será responsable de recibir las solicitudes de escritura, mientras que las lecturas serán atendidas por los seguidores. Este enfoque permite replicar los datos entre los nodos y garantiza la consistencia entre ellos .
+En este proyecto de un sistema de base de datos simulado, se implementará un esquema de consenso utilizando la elección de líder basado en el algoritmo Raft. El sistema constará de tres procesos: un líder y dos seguidores, donde el líder será responsable de recibir las solicitudes de escritura, mientras que las lecturas serán atendidas por los seguidores. Este enfoque permite replicar los datos entre los nodos y garantiza la consistencia entre ellos .
 
 El sistema debe también manejar la tolerancia a fallos, simulando caídas de nodos. Por ejemplo, si el líder falla, los seguidores deben ser capaces de elegir un nuevo líder a través de una nueva elección. Esto proporciona resiliencia y asegura que el sistema continúe funcionando a pesar de fallos temporales .
 
 ### Conclusión
-Los algoritmos de consenso y la elección de líder son esenciales para garantizar consistencia y disponibilidad en sistemas distribuidos . Raft, con su enfoque claro y más comprensible, ha ganado terreno frente a Paxos, que, aunque más formalmente completo, es más difícil de implementar. Ambos enfoques ofrecen soluciones robustas para sistemas distribuidos con tolerancia a fallos, lo que los hace adecuados para proyectos que requieren alta disponibilidad y consistencia, como bases de datos distribuidas.
+Los algoritmos de consenso y la elección de líder son esenciales para garantizar consistencia y disponibilidad en sistemas distribuidos . Raft, con su enfoque claro y más comprensible, ha ganado terreno frente a Paxos, que, aunque más formalmente completo, es más difícil de implementar. Ambos enfoques ofrecen soluciones robustas para sistemas distribuidos con tolerancia a fallos, lo que los hace adecuados para proyectos que requieren alta disponibilidad y consistencia, como bases de datos distribuidas. Ya que Raft tiene una implementación más sencilla, utilizaremos dicho algoritmo para nuestro proyecto.
 
 ## Bibliografia marco teorico: 
 
