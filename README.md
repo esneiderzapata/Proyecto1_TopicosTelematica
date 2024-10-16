@@ -87,8 +87,25 @@ https://www.cs.yale.edu/homes/aspnes/pinewiki/Paxos.html
 
 
 ## Informe final: 
-Incluir un an ́alisis detallado de las pruebas realizadas, simu-
-laci ́on de fallos y resultados.
+Veremos las pruebas realizadas al algoritmo y sus resultados (la evidencia de estas pruebas se puede encontrar en el video adjunto en la sección **Informe de pruebas** de este mismo documento):
+
+### Se inician los nodos sin un lider inicial:
+Resultado: Los nodos se ponen de acuerdo y se elige un único líder.
+
+### Se envía una solicitud "write(message) al proxy"
+Resultado: El proxy encuentra al nodo lider y reenvía la solictud a dicho nodo, la solictud se replica tanto en el log como en la base de datos de todos los nodos.
+
+### Se envía una solicitud "read" al proxy
+Resultado: El proxy crea una lista con solamente los nodos followers, y envia la solictud read a cualquier nodo en la lista, dicho nodo responde con todos los datos de su base de datos.
+
+### Se cae el líder actual
+Resultado: Los nodos se ponen de acuerdo y se elige a un nuevo líder.
+
+### Se cae un follower
+Resultado: El lider sigue intentando envíar mensajes a este nodo sin éxito, pero los nodos que siguen disponibles siguen funcionando con total normalidad.
+
+### Un nodo se intenta reconectar a la red
+Resultado: El nodo siempre entra como follower sin importar su estado antes de caerse, si se enviaron mensajes "write(message)" mientras el nodo estaba caido, dicho nodo es capaz de sincronizar estos mensajes que inicialmente no pudo recibir, sincronizando su log y base de datos con todos los demás nodos.
 
 ## Documentación técnica: 
 A continuación explicaremos paso por paso como funciona el algoritmo Raft que implementamos:
