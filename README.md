@@ -90,10 +90,40 @@ https://www.cs.yale.edu/homes/aspnes/pinewiki/Paxos.html
 Incluir un an ́alisis detallado de las pruebas realizadas, simu-
 laci ́on de fallos y resultados.
 
-## Documentaci ́on t ́ecnica: 
+## Documentación técnica: 
+A continuación explicaremos paso por paso como funciona el algoritmo Raft que implementamos:
 Explicaci ́on detallada del algoritmo elegido (Raft,
 Paxos o soluci ́on propia), incluyendo los desaf ́ıos enfrentados y c ́omo se ga-
 rantiza la consistencia y la disponibilidad en el sistema.
+
+### Paso 1 - Elección inicial del lider
+Todos los nodos empiezan con el estado "Follower", y a cada nodo se le asigna una cantidad de tiempo aleatoria entre 3 y 5 segundos (ejemplo: 3.56789s). La función de este tiempo es iniciar un cronometro que una vez llegue a 0, el nodo asumirá que el lider actual ha dejado de estar disponible, este cronometro se vuelve a empezar cada vez que se recibe un heartbeat del lider, impidiendo que llegue a 0 si el lider no se ha caído.
+
+Como todos los nodos empiezan como "Follower", ningúno recibe hearbeats, lo que pasa a continuación es que el el primer nodo cuyo cronometro llegue a 0 iniciará una "elección" en la que se determinará un nuevo lider, dicho nodo se postula como candidato y vota por si mismo, a la vez que solicita votos a los demás nodos.
+
+Los demás nodos reciben la solicitud de voto y votarán por dicho nodo si y solo si el nodo candidato cuenta con un "term" mayor o igual al del nodo votante (Term es una variable que determina la cantidad de votaciones realizadas hasta el momento).
+
+Cuando el nodo candidato recibe la mayoría de votos (en este caso 2: el suyo propio y el de cualquier otro nodo), este se vuelve el lider, y empieza a enviar hearbeats a los demás nodos para notificarles.
+
+Si un candidato no recibe la mayoría de votos, este vuelve a ser un follower y el siguiente nodo cuyo contador llegue a 0 se convertirá en el nuevo candidato, hasta que se elija un lider.
+
+### Paso 2 - Replicación del log y Consistencia de la base de datos
+
+Una vez se ha elegido un nodo lider, este será quien reciba los solicitudes "write", cuando el nodo lider recibe una de estas solicitudes, la anota en su propio log (el log es un archivo persistente .json) y le informa a los followers para que estos repliquen dicha entrada tambien, sin embargo, no modifica la base de datos (que es tambien un archivo persistente .json) aún.
+
+Cuando la mayoría de followers le informan al lider que sus logs han sido actualizados, el lider procede a escribir en su base de datos el mensaje que estaba adjunto a la solicitud "write", e informa a los followers de que hagan lo mismo, de esta manera nos aseguramos de que solo se actualice la base de datos si la mayoría de los nodos tienen su log sincronizado.
+
+### Paso 3 - Re-elección del Lider
+
+Supongamos que el lider por cualquier razón deja de estar disponible, es decir, se cae, lo que sucede a continuación es que el cronometro de los followers empezará a correr ya que dejaron de recibir heartbeats, el primer follower cuyo contador llegue a 0 pasará a ser un candidato, y repetira el proceso de elección de lider, lo que incluye solicitar y recibir los votos necesarios. Una vez recibidos, se convertirá en el nuevo lider y procederá con normalidad.
+
+### Paso 4 - Re-conexión de nodos
+
+Supongamos que el lider original vuelva a estar disponible, este iniciará nuevamente como un follower ya que detectará que el lider actual le está enviando hearbeats
+
+### Paso 5 - Sincronización de log después de una caída
+
+Supongamos que ahora se cae un follower, que mientras está caido llegan una serie de mensajes "write" y que luego se reconecta a la red. Para asegurar la sincronización del log, cada nodo al iniciar verifica si actualmente hay un lider, en caso de que lo haya, el nodo que se ha reconectado solicita al lider que le pase su log, el nodo reconectado verifica las diferencias entre su log y el del lider y hace los cambios pertinentes, una vez actualiza su log, procede a ejecutar las acciones en la base de datos, asegurando así la consistencia entre todos los nodos incluso si se llegaron a desconectar de la red.
 
 ## Informe de pruebas: 
 Video de evidencia de las pruebas realizadas: https://youtu.be/DK1f0jX8xow
