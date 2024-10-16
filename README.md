@@ -6,9 +6,7 @@
 Los algoritmos de consenso en sistemas distribuidos permiten que un grupo de nodos independientes acuerden un valor común o estado, garantizando consistencia a pesar de posibles fallos en los nodos o la red. Son esenciales en sistemas como bases de datos distribuidas, redes de blockchain y almacenamiento distribuido. Por otro lado, la elección de líder es una variante dentro de los algoritmos de consenso, donde un nodo es seleccionado como líder, responsable de coordinar y dirigir las acciones del sistema. El líder actúa como un punto de referencia centralizado para garantizar el consenso y evitar la fragmentación o conflicto entre los nodos.
 
 ### Algoritmos de Consenso
-En un sistema distribuido, varios nodos pueden realizar tareas simultáneamente, pero la falta de un estado compartido puede causar inconsistencias. Aquí es donde los algoritmos de consenso juegan un papel crucial, permitiendo que todos los nodos lleguen a un acuerdo a pesar de los fallos .
-
-Algunos de los más reconocidos algoritmos de consenso incluyen:
+En un sistema distribuido, varios nodos pueden realizar tareas simultáneamente, pero la falta de un estado compartido puede causar inconsistencias. Aquí es donde los algoritmos de consenso juegan un papel crucial, permitiendo que todos los nodos lleguen a un acuerdo a pesar de los fallos. Algunos de los más reconocidos algoritmos de consenso incluyen:
 
 Paxos: Un algoritmo de consenso teórico propuesto por Leslie Lamport. Paxos está diseñado para garantizar seguridad (consenso válido) a pesar de la presencia de fallos. Paxos es robusto, pero puede ser complejo de implementar y difícil de entender debido a su formalización.
 Raft: Es una alternativa a Paxos que ofrece una implementación más simple. Raft se basa en un líder, donde este nodo gestiona todas las peticiones de los clientes, sincronizando a los nodos seguidores (followers) con el mismo estado a través de registros de comandos.
