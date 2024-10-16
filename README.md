@@ -92,9 +92,6 @@ laci ́on de fallos y resultados.
 
 ## Documentación técnica: 
 A continuación explicaremos paso por paso como funciona el algoritmo Raft que implementamos:
-Explicaci ́on detallada del algoritmo elegido (Raft,
-Paxos o soluci ́on propia), incluyendo los desaf ́ıos enfrentados y c ́omo se ga-
-rantiza la consistencia y la disponibilidad en el sistema.
 
 ### Paso 1 - Elección inicial del lider
 Todos los nodos empiezan con el estado "Follower", y a cada nodo se le asigna una cantidad de tiempo aleatoria entre 3 y 5 segundos (ejemplo: 3.56789s). La función de este tiempo es iniciar un cronometro que una vez llegue a 0, el nodo asumirá que el lider actual ha dejado de estar disponible, este cronometro se vuelve a empezar cada vez que se recibe un heartbeat del lider, impidiendo que llegue a 0 si el lider no se ha caído.
