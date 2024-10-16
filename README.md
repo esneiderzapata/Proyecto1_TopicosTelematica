@@ -83,6 +83,8 @@ Definici ́on final de la arquitectura del
 sistema, los protocolos y APIs para la comunicaci ́on entre los diferentes pro-
 cesos, incluyendo la separaci ́on entre el plano de datos y el plano de control.
 
+![WhatsApp Image 2024-10-15 at 21 01 40](https://github.com/user-attachments/assets/648a0bd7-d14c-4304-8fd9-63e511d43710)
+
 ## Diseño del sistema: 
 
 ![WhatsApp Image 2024-10-14 at 18 34 24](https://github.com/user-attachments/assets/81eab16f-4173-43af-aff9-6a1ae6b563a1)
